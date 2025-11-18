@@ -5,16 +5,12 @@ import com.mos.base.common.dto.MigrationRequest;
 import com.mos.base.common.dto.MigrationResponse;
 import com.mos.base.common.entity.User;
 import com.mos.base.common.mapper.source.SourceUserMapper;
-import com.mos.base.common.mapper.target.TargetUserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户表迁移服务
@@ -28,10 +24,10 @@ public class UserMigrationServiceImpl {
     private SourceUserMapper sourceUserMapper;
 
     @Autowired
-    private TargetUserMapper targetUserMapper;
+    private MappingCache mappingCache;
 
     @Autowired
-    private MappingCache mappingCache;
+    private TransactionService transactionService;
 
     /**
      * 迁移用户数据
@@ -80,7 +76,7 @@ public class UserMigrationServiceImpl {
                 }
 
                 // 3. 开启事务：写入 + 验证（在同一个事务中）
-                int inserted = insertAndValidate(targetUsers, oldUserIds, oldPhones);
+                int inserted = transactionService.insertAndValidateUser(targetUsers, oldUserIds, oldPhones);
 
                 totalMigrated += inserted;
                 batchCount++;
@@ -107,47 +103,4 @@ public class UserMigrationServiceImpl {
         }
     }
 
-    /**
-     * 事务方法：插入数据并验证
-     *
-     * @param targetUsers 目标用户列表
-     * @param oldUserIds 旧用户ID列表
-     * @param oldPhones 旧手机号列表
-     * @return 插入数量
-     */
-    @Transactional(transactionManager = "targetTransactionManager", rollbackFor = Exception.class)
-    public int insertAndValidate(List<User> targetUsers, List<Integer> oldUserIds, List<String> oldPhones) {
-        // 写入数据（MyBatis会自动填充userId到targetUsers中）
-        int inserted = targetUserMapper.batchInsert(targetUsers);
-
-        // 验证数据量
-        if (inserted != targetUsers.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetUsers.size() + ", 实际:" + inserted);
-        }
-
-        // 构建映射关系（此时targetUsers中的userId已经被MyBatis填充）
-        Map<Integer, Integer> finalUserMapping = new HashMap<>();
-        Map<String, String> finalUserPhoneMapping = new HashMap<>();
-
-        for (int i = 0; i < targetUsers.size(); i++) {
-            Integer oldUserId = oldUserIds.get(i);
-            Integer newUserId = targetUsers.get(i).getUserId();
-            String oldPhone = oldPhones.get(i);
-            String newPhone = targetUsers.get(i).getPhone();
-
-            // 用户ID映射
-            finalUserMapping.put(oldUserId, newUserId);
-
-            // 手机号映射
-            String newKey = newUserId + ":" + newPhone;
-            String oldValue = oldUserId + ":" + oldPhone;
-            finalUserPhoneMapping.put(newKey, oldValue);
-        }
-
-        // 验证成功后，更新全局映射缓存
-        mappingCache.putAllUserMapping(finalUserMapping);
-        mappingCache.putAllUserPhoneMapping(finalUserPhoneMapping);
-
-        return inserted;
-    }
 }

@@ -28,10 +28,10 @@ public class RideCardMigrationServiceImpl {
     private SourceRideCardMapper sourceRideCardMapper;
 
     @Autowired
-    private TargetRideCardMapper targetRideCardMapper;
+    private MappingCache mappingCache;
 
     @Autowired
-    private MappingCache mappingCache;
+    private TransactionService transactionService;
 
     /**
      * 迁移骑行卡数据
@@ -78,7 +78,7 @@ public class RideCardMigrationServiceImpl {
                 }
 
                 // 3. 开启事务：写入 + 验证
-                int inserted = insertAndValidate(targetData, oldRideCardIds);
+                int inserted = transactionService.insertAndValidateRideCard(targetData, oldRideCardIds);
 
                 totalMigrated += inserted;
                 batchCount++;
@@ -105,34 +105,4 @@ public class RideCardMigrationServiceImpl {
         }
     }
 
-    /**
-     * 事务方法：插入数据并验证
-     *
-     * @param targetData 目标数据列表
-     * @param oldRideCardIds 旧骑行卡ID列表
-     * @return 插入数量
-     */
-    @Transactional(transactionManager = "targetTransactionManager", rollbackFor = Exception.class)
-    public int insertAndValidate(List<RideCard> targetData, List<Integer> oldRideCardIds) {
-        // 写入数据（MyBatis会自动填充rideCardId）
-        int inserted = targetRideCardMapper.batchInsert(targetData);
-
-        // 验证数据量
-        if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
-        }
-
-        // 构建映射关系
-        Map<Integer, Integer> finalMapping = new HashMap<>();
-        for (int i = 0; i < targetData.size(); i++) {
-            Integer oldRideCardId = oldRideCardIds.get(i);
-            Integer newRideCardId = targetData.get(i).getRideCardId();
-            finalMapping.put(oldRideCardId, newRideCardId);
-        }
-
-        // 验证成功后，更新全局映射缓存
-        mappingCache.putAllRideCardMapping(finalMapping);
-
-        return inserted;
-    }
 }

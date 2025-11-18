@@ -28,10 +28,10 @@ public class GiftCardMigrationServiceImpl {
     private SourceGiftCardMapper sourceGiftCardMapper;
 
     @Autowired
-    private TargetGiftCardMapper targetGiftCardMapper;
+    private MappingCache mappingCache;
 
     @Autowired
-    private MappingCache mappingCache;
+    private TransactionService transactionService;
 
     /**
      * 迁移礼品卡数据
@@ -88,7 +88,7 @@ public class GiftCardMigrationServiceImpl {
                 }
 
                 // 3. 开启事务：写入 + 验证
-                int inserted = insertAndValidate(targetData, oldGiftCardIds);
+                int inserted = transactionService.insertAndValidateGiftCard(targetData, oldGiftCardIds);
 
                 totalMigrated += inserted;
                 batchCount++;
@@ -115,34 +115,4 @@ public class GiftCardMigrationServiceImpl {
         }
     }
 
-    /**
-     * 事务方法：插入数据并验证
-     *
-     * @param targetData 目标数据列表
-     * @param oldGiftCardIds 旧礼品卡ID列表
-     * @return 插入数量
-     */
-    @Transactional(transactionManager = "targetTransactionManager", rollbackFor = Exception.class)
-    public int insertAndValidate(List<GiftCard> targetData, List<Integer> oldGiftCardIds) {
-        // 写入数据（MyBatis会自动填充giftcardId）
-        int inserted = targetGiftCardMapper.batchInsert(targetData);
-
-        // 验证数据量
-        if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
-        }
-
-        // 构建映射关系
-        Map<Integer, Integer> finalMapping = new HashMap<>();
-        for (int i = 0; i < targetData.size(); i++) {
-            Integer oldGiftCardId = oldGiftCardIds.get(i);
-            Integer newGiftCardId = targetData.get(i).getGiftcardId();
-            finalMapping.put(oldGiftCardId, newGiftCardId);
-        }
-
-        // 验证成功后，更新全局映射缓存
-        mappingCache.putAllGiftCardMapping(finalMapping);
-
-        return inserted;
-    }
 }

@@ -26,10 +26,10 @@ public class UserToAgentMigrationServiceImpl {
     private SourceUserToAgentMapper sourceUserToAgentMapper;
 
     @Autowired
-    private TargetUserToAgentMapper targetUserToAgentMapper;
+    private MappingCache mappingCache;
 
     @Autowired
-    private MappingCache mappingCache;
+    private TransactionService transactionService;
 
     /**
      * 迁移用户区域关联数据
@@ -92,7 +92,7 @@ public class UserToAgentMigrationServiceImpl {
                 }
 
                 // 3. 开启事务：写入 + 验证
-                int inserted = insertAndValidate(targetData);
+                int inserted = transactionService.insertAndValidateUserToAgent(targetData);
 
                 totalMigrated += inserted;
                 batchCount++;
@@ -118,22 +118,4 @@ public class UserToAgentMigrationServiceImpl {
         }
     }
 
-    /**
-     * 事务方法：插入数据并验证
-     *
-     * @param targetData 目标数据列表
-     * @return 插入数量
-     */
-    @Transactional(transactionManager = "targetTransactionManager", rollbackFor = Exception.class)
-    public int insertAndValidate(List<UserToAgent> targetData) {
-        // 写入数据
-        int inserted = targetUserToAgentMapper.batchInsert(targetData);
-
-        // 验证数据量
-        if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
-        }
-
-        return inserted;
-    }
 }
