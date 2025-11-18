@@ -5,7 +5,22 @@ spring:
       max-request-size: 20MB
   datasource:
     # 品牌A数据库（源数据库）
+    source:
+      jdbc-url: jdbc:mysql://localhost:3306/brand_a?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      username: root
+      password: password
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      hikari:
+        read-only: true
+        maximum-pool-size: 10
     # 品牌B数据库（目标数据库）
+    target:
+      jdbc-url: jdbc:mysql://localhost:3306/brand_b?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      username: root
+      password: password
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      hikari:
+        maximum-pool-size: 10
 
 server:
   port: 9000
@@ -18,3 +33,7 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 迁移配置
+migration:
+  default-batch-size: 1000
