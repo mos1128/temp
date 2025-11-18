@@ -1,0 +1,20 @@
+CREATE TABLE `giftcard` (
+  `giftcardId` int(11) NOT NULL AUTO_INCREMENT COMMENT '礼品卡Id',
+  `accountId` int(11) NOT NULL COMMENT '区域代理商id',
+  `cardType` int(11) NOT NULL COMMENT '礼品卡类型 0-礼品金 1-优惠券',
+  `cardNO` varchar(255) NOT NULL COMMENT '礼品卡编号',
+  `money` int(11) NOT NULL COMMENT '礼品卡金额',
+  `couponId` int(11) DEFAULT NULL COMMENT '关联的优惠券id，礼品卡类型为优惠券时不为空',
+  `couponCount` int(11) DEFAULT NULL COMMENT '优惠券数量，礼品卡类型为优惠券时不为空',
+  `couponExpireDays` int(11) DEFAULT NULL COMMENT '优惠券有效期（天），礼品卡类型为优惠券时不为空',
+  `expireDate` datetime NOT NULL COMMENT '礼品卡失效日期',
+  `createTime` datetime NOT NULL COMMENT '礼品卡创建时间',
+  `useTime` datetime DEFAULT NULL COMMENT '礼品卡使用时间',
+  `userId` int(11) DEFAULT NULL COMMENT '礼品卡使用用户',
+  `remark` varchar(30) DEFAULT NULL COMMENT '礼品卡备注',
+  `memberFeeDays` int(11) DEFAULT NULL COMMENT '免押天数',
+  PRIMARY KEY (`giftcardId`) USING BTREE,
+  UNIQUE KEY `cardNO` (`cardNO`) USING BTREE,
+  KEY `giftcard_for_accountId` (`accountId`) USING BTREE,
+  CONSTRAINT `giftcard_ibfk_1` FOREIGN KEY (`accountId`) REFERENCES `account` (`accountId`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=49696 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='礼品卡';

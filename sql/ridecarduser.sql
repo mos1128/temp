@@ -1,0 +1,22 @@
+CREATE TABLE `ridecarduser` (
+  `userId` int(11) NOT NULL DEFAULT '0' COMMENT '用户id',
+  `accountId` int(11) NOT NULL DEFAULT '0' COMMENT '运营区域id',
+  `rideCardId` int(11) NOT NULL DEFAULT '0' COMMENT '骑行卡id',
+  `buyTime` datetime NOT NULL COMMENT '购买时间',
+  `startDate` date NOT NULL COMMENT '生效日期',
+  `endDate` date NOT NULL COMMENT '失效日期',
+  `useCount` int(11) DEFAULT '0' COMMENT '已使用次数',
+  `isValid` bit(1) DEFAULT b'0' COMMENT '是否有效',
+  `currentNum` int(11) NOT NULL DEFAULT '0' COMMENT '当日使用次数',
+  `updateTime` datetime DEFAULT NULL COMMENT '更新时间',
+  `orderNO` varchar(100) NOT NULL DEFAULT '' COMMENT '支付订单编号',
+  `payState` int(11) NOT NULL DEFAULT '0' COMMENT '支付状态',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  UNIQUE KEY `ridecarduser_index_orderNO` (`orderNO`) USING BTREE,
+  KEY `ridecard_user_for_rideCardId` (`rideCardId`) USING BTREE,
+  KEY `ridecard_user_for_userId` (`userId`) USING BTREE,
+  KEY `ridecarduser_index_accountId` (`accountId`,`payState`) USING BTREE,
+  KEY `ridecarduser_index_accountId_endDate` (`accountId`,`endDate`) USING BTREE,
+  CONSTRAINT `ridecarduser_ibfk_1` FOREIGN KEY (`rideCardId`) REFERENCES `ridecard` (`rideCardId`) ON DELETE CASCADE,
+  CONSTRAINT `ridecarduser_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='用户骑行会员';

@@ -1,0 +1,20 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  datasource:
+    # 品牌A数据库（源数据库）
+    # 品牌B数据库（目标数据库）
+
+server:
+  port: 9000
+  servlet:
+    context-path: /base
+
+# mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

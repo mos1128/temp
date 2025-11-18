@@ -1,0 +1,19 @@
+### 隐藏文件夹 ###
+.*/
+
+### Package File ###
+target/
+
+### Log File ###
+logs/
+*.log
+
+### IntelliJ IDEA ###
+.idea
+
+### VS Code ###
+.vscode/
+
+### AI ###
+*CLAUDE*
+openspec
