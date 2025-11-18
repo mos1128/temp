@@ -1,4 +1,5 @@
 package com.mos.base.common.service.impl;
+import com.mos.base.common.exception.DataMigrationException;
 
 import com.mos.base.common.cache.MappingCache;
 import com.mos.base.common.dto.MigrationRequest;
@@ -63,7 +64,7 @@ public class UserMigrationServiceImpl {
                     Integer oldAccountId = sourceUser.getAccountId();
                     Integer newAccountId = mappingCache.getNewAccountId(oldAccountId);
                     if (newAccountId == null) {
-                        throw new RuntimeException("找不到accountId映射关系：" + oldAccountId);
+                        throw new DataMigrationException("找不到accountId映射关系：" + oldAccountId);
                     }
                     targetUser.setAccountId(newAccountId);
 

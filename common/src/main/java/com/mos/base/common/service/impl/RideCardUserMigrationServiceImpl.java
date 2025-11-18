@@ -1,4 +1,5 @@
 package com.mos.base.common.service.impl;
+import com.mos.base.common.exception.DataMigrationException;
 
 import com.mos.base.common.cache.MappingCache;
 import com.mos.base.common.dto.MigrationRequest;
@@ -63,7 +64,7 @@ public class RideCardUserMigrationServiceImpl {
                     Integer oldUserId = source.getUserId();
                     Integer newUserId = mappingCache.getNewUserId(oldUserId);
                     if (newUserId == null) {
-                        throw new RuntimeException("找不到userId映射关系：" + oldUserId);
+                        throw new DataMigrationException("找不到userId映射关系：" + oldUserId);
                     }
                     target.setUserId(newUserId);
 
@@ -71,7 +72,7 @@ public class RideCardUserMigrationServiceImpl {
                     Integer oldAccountId = source.getAccountId();
                     Integer newAccountId = mappingCache.getNewAccountId(oldAccountId);
                     if (newAccountId == null) {
-                        throw new RuntimeException("找不到accountId映射关系：" + oldAccountId);
+                        throw new DataMigrationException("找不到accountId映射关系：" + oldAccountId);
                     }
                     target.setAccountId(newAccountId);
 
@@ -79,7 +80,7 @@ public class RideCardUserMigrationServiceImpl {
                     Integer oldRideCardId = source.getRideCardId();
                     Integer newRideCardId = mappingCache.getNewRideCardId(oldRideCardId);
                     if (newRideCardId == null) {
-                        throw new RuntimeException("找不到rideCardId映射关系：" + oldRideCardId);
+                        throw new DataMigrationException("找不到rideCardId映射关系：" + oldRideCardId);
                     }
                     target.setRideCardId(newRideCardId);
 

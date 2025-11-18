@@ -2,6 +2,7 @@ package com.mos.base.common.service.impl;
 
 import com.mos.base.common.cache.MappingCache;
 import com.mos.base.common.entity.*;
+import com.mos.base.common.exception.DataMigrationException;
 import com.mos.base.common.mapper.target.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,7 +97,7 @@ public class TransactionService {
         int inserted = targetUserToAgentMapper.batchInsert(targetData);
 
         if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
+            throw new DataMigrationException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
         }
 
         return inserted;
@@ -114,7 +115,7 @@ public class TransactionService {
         int inserted = targetRideCardMapper.batchInsert(targetData);
 
         if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
+            throw new DataMigrationException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
         }
 
         // 构建映射关系
@@ -141,7 +142,7 @@ public class TransactionService {
         int inserted = targetRideCardUserMapper.batchInsert(targetData);
 
         if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
+            throw new DataMigrationException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
         }
 
         return inserted;
@@ -159,7 +160,7 @@ public class TransactionService {
         int inserted = targetGiftCardMapper.batchInsert(targetData);
 
         if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
+            throw new DataMigrationException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
         }
 
         // 构建映射关系
@@ -186,7 +187,7 @@ public class TransactionService {
         int inserted = targetGiftCardUserMapper.batchInsert(targetData);
 
         if (inserted != targetData.size()) {
-            throw new RuntimeException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
+            throw new DataMigrationException("插入数量不匹配！期望:" + targetData.size() + ", 实际:" + inserted);
         }
 
         return inserted;
