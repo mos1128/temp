@@ -2,7 +2,9 @@
 .*/
 
 ### Package File ###
-target/
+# 忽略Maven编译输出目录，但不忽略源码中的target目录
+**/target/
+!**/src/**/target/
 
 ### Log File ###
 logs/
